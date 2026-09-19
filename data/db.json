@@ -1,0 +1,158 @@
+{
+  "users": [
+    {
+      "id": "USR-ADMIN-01",
+      "name": "Lithaansh (Admin)",
+      "email": "lithaansh06@gmail.com",
+      "phone": "+91 7483271232",
+      "education": "Aerospace & Automotive Engineering Leadership",
+      "password": "liki",
+      "role": "admin",
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "USR-568520",
+      "name": "Ananya Deshmukh",
+      "email": "ananya.d@gmail.com",
+      "phone": "+91 9876543210",
+      "education": "B.E. / B.Tech Aerospace / Aeronautical Engineering",
+      "password": "password123",
+      "role": "student",
+      "createdAt": "2026-09-17T15:37:56.157Z"
+    },
+    {
+      "id": "USR-132419",
+      "name": "Pooja Kulkarni",
+      "email": "student_1789659675673@cadc-test.com",
+      "phone": "+91 9988776655",
+      "education": "B.E. / B.Tech Automobile / Automotive Engineering",
+      "password": "testPassword123!",
+      "role": "student",
+      "createdAt": "2026-09-17T15:41:15.688Z"
+    },
+    {
+      "id": "USR-354402",
+      "name": "Pooja Kulkarni",
+      "email": "student_1789662010291@cadc-test.com",
+      "phone": "+91 9988776655",
+      "education": "B.E. / B.Tech Automobile / Automotive Engineering",
+      "password": "testPassword123!",
+      "role": "student",
+      "createdAt": "2026-09-17T16:20:10.294Z"
+    },
+    {
+      "id": "USR-165357",
+      "name": "Pooja Kulkarni",
+      "email": "student_1789711263041@cadc-test.com",
+      "phone": "+91 9988776655",
+      "education": "B.E. / B.Tech Automobile / Automotive Engineering",
+      "password": "testPassword123!",
+      "role": "student",
+      "createdAt": "2026-09-18T06:01:03.046Z"
+    },
+    {
+      "id": "USR-666384",
+      "name": "Pooja Kulkarni",
+      "email": "student_1789820758088@cadc-test.com",
+      "phone": "+91 9988776655",
+      "education": "B.E. / B.Tech Automobile / Automotive Engineering",
+      "password": "testPassword123!",
+      "role": "student",
+      "createdAt": "2026-09-19T12:25:58.093Z"
+    },
+    {
+      "id": "USR-992212",
+      "name": "Pooja Kulkarni",
+      "email": "student_1789820776875@cadc-test.com",
+      "phone": "+91 9988776655",
+      "education": "B.E. / B.Tech Automobile / Automotive Engineering",
+      "password": "testPassword123!",
+      "role": "student",
+      "createdAt": "2026-09-19T12:26:16.879Z"
+    },
+    {
+      "id": "USR-565682",
+      "name": "Pooja Kulkarni",
+      "email": "student_1789821705763@cadc-test.com",
+      "phone": "+91 9988776655",
+      "education": "B.E. / B.Tech Automobile / Automotive Engineering",
+      "password": "testPassword123!",
+      "role": "student",
+      "createdAt": "2026-09-19T12:41:45.768Z"
+    }
+  ],
+  "inquiries": [
+    {
+      "id": "REQ-283100",
+      "timestamp": "2026-09-19T12:41:45.810Z",
+      "name": "Rohan Varma",
+      "email": "rohan.varma@defense-aero.com",
+      "phone": "+91 9123456780",
+      "service": "Course 2: Advanced Generative Shape Design",
+      "preferredCallTime": "Afternoon (12:00 PM – 4:00 PM)",
+      "touchpointChannel": "Google Meet / Video",
+      "message": "Interested in team training on aerodynamic surfacing.",
+      "formType": "Homepage Quick Enquiry"
+    },
+    {
+      "id": "REQ-895335",
+      "timestamp": "2026-09-19T12:26:16.902Z",
+      "name": "Rohan Varma",
+      "email": "rohan.varma@defense-aero.com",
+      "phone": "+91 9123456780",
+      "service": "Course 2: Advanced Generative Shape Design",
+      "preferredCallTime": "Afternoon (12:00 PM – 4:00 PM)",
+      "touchpointChannel": "Google Meet / Video",
+      "message": "Interested in team training on aerodynamic surfacing.",
+      "formType": "Homepage Quick Enquiry"
+    },
+    {
+      "id": "REQ-955550",
+      "timestamp": "2026-09-19T12:25:58.117Z",
+      "name": "Rohan Varma",
+      "email": "rohan.varma@defense-aero.com",
+      "phone": "+91 9123456780",
+      "service": "Course 2: Advanced Generative Shape Design",
+      "preferredCallTime": "Afternoon (12:00 PM – 4:00 PM)",
+      "touchpointChannel": "Google Meet / Video",
+      "message": "Interested in team training on aerodynamic surfacing.",
+      "formType": "Homepage Quick Enquiry"
+    },
+    {
+      "id": "REQ-612231",
+      "timestamp": "2026-09-18T06:01:03.090Z",
+      "name": "Rohan Varma",
+      "email": "rohan.varma@defense-aero.com",
+      "phone": "+91 9123456780",
+      "service": "Course 2: Advanced Generative Shape Design",
+      "preferredCallTime": "Afternoon (12:00 PM – 4:00 PM)",
+      "touchpointChannel": "Google Meet / Video",
+      "message": "Interested in team training on aerodynamic surfacing.",
+      "formType": "Homepage Quick Enquiry"
+    },
+    {
+      "id": "REQ-836358",
+      "timestamp": "2026-09-17T16:20:10.336Z",
+      "name": "Rohan Varma",
+      "email": "rohan.varma@defense-aero.com",
+      "phone": "+91 9123456780",
+      "service": "Course 2: Advanced Generative Shape Design",
+      "preferredCallTime": "Afternoon (12:00 PM – 4:00 PM)",
+      "touchpointChannel": "Google Meet / Video",
+      "message": "Interested in team training on aerodynamic surfacing.",
+      "formType": "Homepage Quick Enquiry"
+    },
+    {
+      "id": "REQ-490744",
+      "timestamp": "2026-09-17T15:41:15.723Z",
+      "name": "Rohan Varma",
+      "email": "rohan.varma@defense-aero.com",
+      "phone": "+91 9123456780",
+      "service": "Course 2: Advanced Generative Shape Design",
+      "preferredCallTime": "Afternoon (12:00 PM – 4:00 PM)",
+      "touchpointChannel": "Google Meet / Video",
+      "message": "Interested in team training on aerodynamic surfacing.",
+      "formType": "Homepage Quick Enquiry"
+    }
+  ]
+}

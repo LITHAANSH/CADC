@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact CADC — Get in Touch About a Project or Training</title>
+  <meta name="description" content="Contact CADC — tell us about your design project, request extra CATIA support, or enquire about a training program. We reply within one business day." />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: var(--space-3xl);
+      align-items: start;
+    }
+    .contact-info-card {
+      position: sticky;
+      top: calc(68px + var(--space-2xl));
+    }
+    .contact-info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-md);
+      padding: var(--space-md) 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .contact-info-item:last-child { border-bottom: none; }
+    .contact-info-icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-glow);
+      border: 1px solid rgba(30,111,255,0.3);
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    @media (max-width: 900px) {
+      .contact-layout { grid-template-columns: 1fr; }
+      .contact-info-card { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav" id="main-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">CAD<span>C</span></a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="services.html">What We Do</a>
+        <a href="academy.html">Courses</a>
+        <a href="work.html">Our Work</a>
+        <a href="contact.html" class="active">Contact</a>
+        <a href="login.html">Login</a>
+      </div>
+      <div class="nav-cta">
+        <a href="tel:+917483271232" class="nav-phone">+91 7483271232</a>
+        <a href="login.html" class="btn btn-secondary btn-sm">Sign In / Up</a>
+        <a href="contact.html" class="btn btn-primary btn-sm">Talk to Us</a>
+        <button class="nav-hamburger" id="nav-hamburger"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-mobile" id="nav-mobile">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="services.html">What We Do</a>
+    <a href="academy.html">Courses</a>
+    <a href="work.html">Our Work</a>
+    <a href="contact.html">Contact</a>
+    <a href="login.html">Login / Register</a>
+  </div>
+
+  <section class="page-hero" style="border-bottom:1px solid var(--border);">
+    <div class="container">
+      <div class="section-label fade-in">Get in Touch</div>
+      <h1 class="fade-in fade-in-delay-1">Let's talk about what you need.</h1>
+      <p class="lead fade-in fade-in-delay-2" style="margin-top:var(--space-lg);max-width:55ch;">Whether it's a design project, extra support, or a training program — just send us a message and we'll get back to you within one business day.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="contact-layout">
+
+        <!-- LEFT — INFO -->
+        <div class="contact-info-card fade-in">
+          <div style="border-radius:var(--radius-xl);overflow:hidden;border:1px solid var(--border);margin-bottom:var(--space-xl);">
+            <img src="assets/images/hero_main.jpg" alt="CADC — CATIA design" style="width:100%;display:block;aspect-ratio:4/3;object-fit:cover;" />
+          </div>
+          <div class="card">
+            <div class="section-label mb-lg">Contact Details</div>
+            <div class="contact-info-item">
+              <div class="contact-info-icon">✉</div>
+              <div>
+                <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Email</div>
+                <a href="mailto:lithaanshphalguni@gmail.com" style="font-size:0.95rem;color:var(--text);">lithaanshphalguni@gmail.com</a>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-info-icon">📞</div>
+              <div>
+                <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Phone</div>
+                <a href="tel:+917483271232" style="font-size:0.95rem;color:var(--text);">+91 7483271232</a>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-info-icon" style="background:var(--accent-warm-glow);border-color:rgba(245,158,11,0.3);">🎓</div>
+              <div>
+                <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Training Enquiries</div>
+                <a href="mailto:lithaanshphalguni@gmail.com" style="font-size:0.95rem;color:var(--text);">lithaanshphalguni@gmail.com</a>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-info-icon">⏱</div>
+              <div>
+                <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">We Respond Within</div>
+                <span style="font-size:0.95rem;color:var(--text);">1 business day</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mt-lg">
+            <div class="section-label mb-md">What Happens Next</div>
+            <ul style="display:flex;flex-direction:column;gap:var(--space-md);">
+              <li style="display:flex;gap:var(--space-sm);font-size:0.88rem;color:var(--text-muted);">
+                <span style="color:var(--accent);font-family:var(--font-mono);font-size:0.7rem;flex-shrink:0;margin-top:3px;">01</span>
+                We read your message and reply within 1 business day.
+              </li>
+              <li style="display:flex;gap:var(--space-sm);font-size:0.88rem;color:var(--text-muted);">
+                <span style="color:var(--accent);font-family:var(--font-mono);font-size:0.7rem;flex-shrink:0;margin-top:3px;">02</span>
+                We have a short conversation to understand what you need.
+              </li>
+              <li style="display:flex;gap:var(--space-sm);font-size:0.88rem;color:var(--text-muted);">
+                <span style="color:var(--accent);font-family:var(--font-mono);font-size:0.7rem;flex-shrink:0;margin-top:3px;">03</span>
+                We confirm how we can help and what happens from there. No obligation.
+              </li>
+            </ul>
+          </div>
+
+          <!-- Map placeholder -->
+          <div class="card mt-lg" style="padding:0;overflow:hidden;">
+            <div style="background:var(--surface-2);height:200px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-lg);">
+              <div style="text-align:center;">
+                <div style="font-size:2rem;margin-bottom:var(--space-sm);">📍</div>
+                <p style="font-size:0.85rem;max-width:none;color:var(--text-muted);">Office location map<br/><span style="font-size:0.75rem;">— to be added when address is confirmed</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT — FORM -->
+        <div class="fade-in fade-in-delay-1">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:var(--space-2xl);">
+            <h2 style="font-size:1.5rem;margin-bottom:var(--space-sm);">Send us a message</h2>
+            <p style="max-width:none;font-size:0.9rem;margin-bottom:var(--space-xl);padding-bottom:var(--space-lg);border-bottom:1px solid var(--border);">Tell us what you're interested in and a little about what you need. Rough details are fine — we'll follow up to get specifics.</p>
+            <form class="contact-form" id="contact-form">
+              <input type="hidden" name="subject" value="New Client Inquiry — CADC Website" />
+              <input type="hidden" name="from_name" value="CADC Contact Form" />
+              <input type="checkbox" name="botcheck" style="display:none;" tabindex="-1" autocomplete="off" />
+
+              <div class="form-grid">
+                <div class="form-field">
+                  <label for="c-name">Your Full Name <span style="color:#ef4444;">* (Mandatory)</span></label>
+                  <input type="text" id="c-name" name="name" placeholder="Your full name" required />
+                </div>
+                <div class="form-field">
+                  <label for="c-email">Mail ID (Email) <span style="color:#ef4444;">* (Mandatory)</span></label>
+                  <input type="email" id="c-email" name="email" placeholder="your@email.com" required />
+                </div>
+                <div class="form-field">
+                  <label for="c-phone">Phone Number <span style="color:#ef4444;">* (Mandatory)</span></label>
+                  <input type="tel" id="c-phone" name="phone" placeholder="+91 7483271232" required />
+                </div>
+                <div class="form-field">
+                  <label for="c-interest">What are you interested in? <span style="color:#ef4444;">* (Mandatory)</span></label>
+                  <select id="c-interest" name="interest" required>
+                    <option value="">Please select…</option>
+                    <option>A Design Project — I need something built in CATIA</option>
+                    <option>Extra Support — My team needs extra help on a project</option>
+                    <option>Courses — I want to enroll in CATIA courses or train my team</option>
+                    <option>General Enquiry</option>
+                  </select>
+                </div>
+
+                <!-- Preferred Time for Call / Touch Point (Mandatory) -->
+                <div class="form-field full-width">
+                  <div class="touchpoint-selector-label">
+                    <span>🕒 Preferred Time for Call / Touchpoint <span style="color:#ef4444;">* (Mandatory)</span></span>
+                  </div>
+                  <div class="chips-row">
+                    <label class="chip-option">
+                      <input type="radio" name="preferred_call_time" value="Morning (9:00 AM – 12:00 PM)" required checked />
+                      <span class="chip-label">🌅 Morning (9 AM – 12 PM)</span>
+                    </label>
+                    <label class="chip-option">
+                      <input type="radio" name="preferred_call_time" value="Afternoon (12:00 PM – 4:00 PM)" required />
+                      <span class="chip-label">☀️ Afternoon (12 PM – 4 PM)</span>
+                    </label>
+                    <label class="chip-option">
+                      <input type="radio" name="preferred_call_time" value="Evening (4:00 PM – 8:00 PM)" required />
+                      <span class="chip-label">🌆 Evening (4 PM – 8 PM)</span>
+                    </label>
+                    <label class="chip-option">
+                      <input type="radio" name="preferred_call_time" value="Immediate / ASAP" required />
+                      <span class="chip-label">⚡ Immediate / ASAP</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Preferred Touch Point Channel (Mandatory) -->
+                <div class="form-field full-width">
+                  <div class="touchpoint-selector-label">
+                    <span>📱 Preferred Touchpoint Mode <span style="color:#ef4444;">* (Mandatory)</span></span>
+                  </div>
+                  <div class="chips-row">
+                    <label class="chip-option">
+                      <input type="radio" name="touchpoint_channel" value="Phone Call" required checked />
+                      <span class="chip-label">📞 Direct Phone Call</span>
+                    </label>
+                    <label class="chip-option">
+                      <input type="radio" name="touchpoint_channel" value="Google Meet / Video" required />
+                      <span class="chip-label">💻 Google Meet / Video Call</span>
+                    </label>
+                    <label class="chip-option">
+                      <input type="radio" name="touchpoint_channel" value="WhatsApp Message/Call" required />
+                      <span class="chip-label">💬 WhatsApp</span>
+                    </label>
+                    <label class="chip-option">
+                      <input type="radio" name="touchpoint_channel" value="Email Briefing" required />
+                      <span class="chip-label">✉ Email Briefing</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-field full-width">
+                  <label for="c-message">Tell us a bit more <span style="color:#ef4444;">* (Mandatory)</span></label>
+                  <textarea id="c-message" name="message" placeholder="e.g. what you're building, how many people need training, when you need it by — rough details are fine." required></textarea>
+                </div>
+              </div>
+              <div style="margin-top:var(--space-xl);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-md);">
+                <p style="font-size:0.8rem;max-width:none;margin:0;color:var(--text-muted);">We'll never share your details with anyone. Files can be shared by email after we connect.</p>
+                <button type="submit" class="btn btn-primary" id="contact-submit">Send Message →</button>
+              </div>
+              <div class="form-status" style="display:none;margin-top:var(--space-md);padding:0.85rem 1rem;border-radius:var(--radius-md);font-size:0.88rem;line-height:1.5;"></div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="nav-logo" style="font-size:1.2rem;margin-bottom:var(--space-sm);">CAD<span>C</span></a>
+          <p class="tagline">Specialist CATIA design consultancy and training academy — for aerospace and automotive engineering.</p>
+        </div>
+        <div class="footer-col"><h5>What We Do</h5><ul><li><a href="services/mechanical.html">Part Design</a></li><li><a href="services/structural.html">Structural Design</a></li><li><a href="services/mep.html">Electrical Routing</a></li></ul></div>
+        <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About</a></li><li><a href="work.html">Our Work</a></li><li><a href="process.html">How We Work</a></li><li><a href="academy.html">Courses</a></li></ul></div>
+        <div class="footer-col"><h5>Get in Touch</h5><ul><li><a href="mailto:lithaanshphalguni@gmail.com">lithaanshphalguni@gmail.com</a></li><li><a href="tel:+917483271232">+91 7483271232</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 CADC. All rights reserved.</span><div class="footer-social"><a href="#">LinkedIn</a><a href="#">Twitter/X</a></div></div>
+    </div>
+  </footer>
+  <script src="js/main.js"></script>
+</body>
+</html>

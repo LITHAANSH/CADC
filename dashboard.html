@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin &amp; Student Operations Dashboard — CADC</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .dashboard-header {
+      padding: var(--space-2xl) 0 var(--space-xl);
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(37,99,235,0.06) 0%, transparent 100%);
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-lg);
+      margin: var(--space-xl) 0 var(--space-2xl);
+    }
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg) var(--space-xl);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .metric-card .num {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text);
+      font-family: var(--font-mono);
+      line-height: 1;
+    }
+    .metric-card .label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-family: var(--font-mono);
+    }
+    .section-tab-nav {
+      display: flex;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-xl);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: var(--space-md);
+    }
+    .section-tab-btn {
+      font-family: var(--font-head);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 0.6rem 1.5rem;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: all var(--duration) var(--ease);
+    }
+    .section-tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 4px 14px rgba(30,111,255,0.35);
+    }
+    .inquiries-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    .search-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0.6rem 1rem;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      width: 280px;
+      outline: none;
+    }
+    .search-box:focus {
+      border-color: var(--accent);
+    }
+    .table-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      overflow-x: auto;
+    }
+    table.inquiries-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    table.inquiries-table th {
+      background: rgba(255,255,255,0.03);
+      padding: var(--space-md) var(--space-lg);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+    }
+    table.inquiries-table td {
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    table.inquiries-table tr:last-child td {
+      border-bottom: none;
+    }
+    table.inquiries-table tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+    .badge-tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+    }
+    .badge-project {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    .badge-academy {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .badge-student {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .action-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .action-btn:hover {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+    .empty-state {
+      text-align: center;
+      padding: var(--space-3xl) var(--space-xl);
+      color: var(--text-muted);
+    }
+    /* Modal details */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: var(--space-md);
+    }
+    .modal-box {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      max-width: 600px;
+      width: 100%;
+      padding: var(--space-2xl);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== NAV ===================== -->
+  <nav class="nav" id="main-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">CAD<span>C</span> <span class="logo-tag">ADMIN &amp; OPS</span></a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="services.html">What We Do</a>
+        <a href="academy.html">Courses</a>
+        <a href="work.html">Our Work</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div class="nav-cta">
+        <span id="user-pill" style="font-family:var(--font-mono);font-size:0.8rem;color:var(--text);background:var(--surface);padding:4px 12px;border-radius:var(--radius-full);border:1px solid var(--border);">
+          👤 Admin: lithaansh06@gmail.com
+        </span>
+        <button id="btn-logout" class="btn btn-secondary btn-sm">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <main style="padding-top:68px;">
+    <!-- HEADER -->
+    <section class="dashboard-header">
+      <div class="container">
+        <div class="flex-between flex-wrap gap-md">
+          <div>
+            <div class="section-label" style="color:var(--accent);">Operations Hub</div>
+            <h1 style="font-size:1.8rem;margin-bottom:var(--space-xs);">Admin Portal — Registered Users &amp; Inquiries</h1>
+            <p style="margin:0;font-size:0.9rem;">Live backend view of registered student profiles, educational backgrounds, project inquiries, and call preferences.</p>
+          </div>
+          <div>
+            <a href="login.html" class="btn btn-secondary btn-sm">Switch Account / Login</a>
+          </div>
+        </div>
+
+        <!-- METRICS -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="label">Total Inquiries &amp; Calls</span>
+            <span class="num" id="stat-total">0</span>
+          </div>
+          <div class="metric-card">
+            <span class="label">Registered Students</span>
+            <span class="num" id="stat-students" style="color:#34d399;">0</span>
+          </div>
+          <div class="metric-card">
+            <span class="label">Design Project Leads</span>
+            <span class="num" id="stat-projects">0</span>
+          </div>
+          <div class="metric-card">
+            <span class="label">Backend Database</span>
+            <span style="font-size:1rem;color:#34d399;font-weight:600;display:flex;align-items:center;gap:6px;margin-top:6px;">
+              <span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;"></span> Active (data/db.json)
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN TABS -->
+    <section class="section section--sm">
+      <div class="container">
+        
+        <!-- Tab Navigation -->
+        <div class="section-tab-nav">
+          <button class="section-tab-btn active" id="tab-btn-inquiries" onclick="switchDashboardTab('inquiries')">
+            📬 Inquiries &amp; Call Requests (<span id="count-inquiries-tab">0</span>)
+          </button>
+          <button class="section-tab-btn" id="tab-btn-students" onclick="switchDashboardTab('students')">
+            🎓 Registered Students &amp; Education (<span id="count-students-tab">0</span>)
+          </button>
+        </div>
+
+        <!-- ================= PANEL 1: INQUIRIES ================= -->
+        <div id="panel-inquiries">
+          <div class="inquiries-controls">
+            <div style="display:flex;gap:var(--space-sm);flex-wrap:wrap;">
+              <button class="filter-btn active" data-filter="all">All (<span id="count-all">0</span>)</button>
+              <button class="filter-btn" data-filter="Client Project">Projects</button>
+              <button class="filter-btn" data-filter="Academy Course">Academy Courses</button>
+            </div>
+            <input type="text" id="inquiry-search" class="search-box" placeholder="Search name, email, or requirement…" />
+          </div>
+
+          <div class="table-container">
+            <table class="inquiries-table">
+              <thead>
+                <tr>
+                  <th>Date &amp; Time</th>
+                  <th>Client / Student</th>
+                  <th>Contact Details</th>
+                  <th>Preferred Call Time</th>
+                  <th>Touchpoint Mode</th>
+                  <th>Requirement</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inquiries-tbody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+            <div id="inquiries-empty-state" class="empty-state" style="display:none;">
+              <div style="font-size:2rem;margin-bottom:var(--space-sm);">📬</div>
+              <h3 style="font-size:1.1rem;margin-bottom:var(--space-xs);">No Inquiries Yet</h3>
+              <p style="font-size:0.85rem;max-width:440px;margin:0 auto var(--space-lg);">Submissions from the Homepage Enquire form or Contact page will appear here.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= PANEL 2: REGISTERED USERS ================= -->
+        <div id="panel-students" style="display:none;">
+          <div class="inquiries-controls">
+            <div style="font-family:var(--font-mono);font-size:0.85rem;color:var(--text-muted);">
+              All student accounts registered via the Sign Up portal.
+            </div>
+            <input type="text" id="student-search" class="search-box" placeholder="Search by student name, email, education…" />
+          </div>
+
+          <div class="table-container">
+            <table class="inquiries-table">
+              <thead>
+                <tr>
+                  <th>Registered On</th>
+                  <th>Student Name</th>
+                  <th>Mail ID</th>
+                  <th>Phone Number</th>
+                  <th>Educational Background</th>
+                  <th>Account Role</th>
+                </tr>
+              </thead>
+              <tbody id="students-tbody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+            <div id="students-empty-state" class="empty-state" style="display:none;">
+              <div style="font-size:2rem;margin-bottom:var(--space-sm);">🎓</div>
+              <h3 style="font-size:1.1rem;margin-bottom:var(--space-xs);">No Registered Students Yet</h3>
+              <p style="font-size:0.85rem;max-width:440px;margin:0 auto var(--space-lg);">When students sign up on <a href="login.html?tab=signup" style="color:var(--accent);">login.html</a>, their details will be securely listed here.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="detail-modal">
+    <div class="modal-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-md);">
+        <h3 id="modal-title" style="font-size:1.3rem;margin:0;">Inquiry Details</h3>
+        <button id="modal-close" onclick="closeModal()" style="background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;">&times;</button>
+      </div>
+      <div id="modal-content" style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        <!-- Populated via JS -->
+      </div>
+      <div style="margin-top:var(--space-xl);display:flex;justify-content:flex-end;gap:var(--space-sm);">
+        <a id="modal-email-link" href="#" class="btn btn-primary btn-sm">Reply by Email ↗</a>
+        <button onclick="closeModal()" class="btn btn-secondary btn-sm">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let inquiries = [];
+    let students = [];
+    let currentInquiryFilter = 'all';
+    let inquirySearchQuery = '';
+    let studentSearchQuery = '';
+
+    function switchDashboardTab(tab) {
+      const panelInquiries = document.getElementById('panel-inquiries');
+      const panelStudents = document.getElementById('panel-students');
+      const btnInquiries = document.getElementById('tab-btn-inquiries');
+      const btnStudents = document.getElementById('tab-btn-students');
+
+      if (tab === 'students') {
+        panelStudents.style.display = 'block';
+        panelInquiries.style.display = 'none';
+        btnStudents.classList.add('active');
+        btnInquiries.classList.remove('active');
+        fetchStudents();
+      } else {
+        panelInquiries.style.display = 'block';
+        panelStudents.style.display = 'none';
+        btnInquiries.classList.add('active');
+        btnStudents.classList.remove('active');
+      }
+    }
+
+    async function loadData() {
+      // 1. Fetch Inquiries from backend API (with localStorage fallback)
+      try {
+        const res = await fetch('/api/inquiries');
+        if (res.ok) {
+          const data = await res.json();
+          inquiries = data.inquiries || [];
+        } else {
+          throw new Error('Fallback to local');
+        }
+      } catch (err) {
+        try {
+          inquiries = JSON.parse(localStorage.getItem('cadc_submissions') || '[]');
+        } catch (e) {
+          inquiries = [];
+        }
+      }
+
+      // 2. Fetch Students / Registered Users
+      fetchStudents();
+      renderInquiries();
+    }
+
+    async function fetchStudents() {
+      try {
+        const res = await fetch('/api/admin/users');
+        if (res.ok) {
+          const data = await res.json();
+          students = data.users || [];
+        } else {
+          students = [];
+        }
+      } catch (err) {
+        students = [];
+      }
+      renderStudents();
+    }
+
+    function renderInquiries() {
+      const tbody = document.getElementById('inquiries-tbody');
+      const emptyState = document.getElementById('inquiries-empty-state');
+      
+      let filtered = inquiries.filter(item => {
+        const matchesFilter = (currentInquiryFilter === 'all') || (item.formType === currentInquiryFilter);
+        const q = inquirySearchQuery.toLowerCase();
+        const matchesSearch = !q || 
+          (item.name && item.name.toLowerCase().includes(q)) ||
+          (item.email && item.email.toLowerCase().includes(q)) ||
+          (item.service && item.service.toLowerCase().includes(q)) ||
+          (item.message && item.message.toLowerCase().includes(q));
+        return matchesFilter && matchesSearch;
+      });
+
+      document.getElementById('stat-total').textContent = inquiries.length;
+      document.getElementById('count-all').textContent = inquiries.length;
+      document.getElementById('count-inquiries-tab').textContent = inquiries.length;
+      document.getElementById('stat-projects').textContent = inquiries.filter(i => i.formType === 'Client Project').length;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      tbody.innerHTML = filtered.map(item => {
+        const badgeClass = item.formType === 'Academy Course' ? 'badge-academy' : 'badge-project';
+        const formattedDate = item.timestamp ? new Date(item.timestamp).toLocaleDateString(undefined, {
+          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        }) : 'Recent';
+
+        return `
+          <tr>
+            <td style="font-family:var(--font-mono);font-size:0.8rem;color:var(--text-muted);white-space:nowrap;">
+              ${formattedDate}
+            </td>
+            <td style="font-weight:600;white-space:nowrap;">${escapeHtml(item.name || 'Anonymous')}</td>
+            <td>
+              <div><a href="mailto:${escapeHtml(item.email)}" style="color:var(--accent);">${escapeHtml(item.email || '—')}</a></div>
+              <div style="font-size:0.8rem;color:var(--text-muted);">${escapeHtml(item.phone || '')}</div>
+            </td>
+            <td>
+              <span style="color:#34d399;font-family:var(--font-mono);font-size:0.82rem;">${escapeHtml(item.preferredCallTime || 'Anytime')}</span>
+            </td>
+            <td>
+              <span style="color:#60a5fa;font-family:var(--font-mono);font-size:0.82rem;">${escapeHtml(item.touchpointChannel || 'Phone Call')}</span>
+            </td>
+            <td>
+              <span class="badge-tag ${badgeClass}">${escapeHtml(item.service || 'General')}</span>
+            </td>
+            <td style="text-align:right;white-space:nowrap;">
+              <button class="action-btn" onclick="openDetails('${item.id}')">View</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderStudents() {
+      const tbody = document.getElementById('students-tbody');
+      const emptyState = document.getElementById('students-empty-state');
+
+      let filtered = students.filter(s => {
+        const q = studentSearchQuery.toLowerCase();
+        return !q || 
+          (s.name && s.name.toLowerCase().includes(q)) ||
+          (s.email && s.email.toLowerCase().includes(q)) ||
+          (s.education && s.education.toLowerCase().includes(q)) ||
+          (s.phone && s.phone.includes(q));
+      });
+
+      document.getElementById('stat-students').textContent = students.length;
+      document.getElementById('count-students-tab').textContent = students.length;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      tbody.innerHTML = filtered.map(s => {
+        const formattedDate = s.createdAt ? new Date(s.createdAt).toLocaleDateString(undefined, {
+          month: 'short', day: 'numeric', year: 'numeric'
+        }) : 'Recent';
+
+        return `
+          <tr>
+            <td style="font-family:var(--font-mono);font-size:0.8rem;color:var(--text-muted);white-space:nowrap;">
+              ${formattedDate}
+            </td>
+            <td style="font-weight:600;white-space:nowrap;">${escapeHtml(s.name)}</td>
+            <td><a href="mailto:${escapeHtml(s.email)}" style="color:var(--accent);">${escapeHtml(s.email)}</a></td>
+            <td style="font-family:var(--font-mono);font-size:0.85rem;">${escapeHtml(s.phone || '—')}</td>
+            <td>
+              <span style="color:#fbbf24;font-weight:500;">${escapeHtml(s.education || 'Not specified')}</span>
+            </td>
+            <td>
+              <span class="badge-tag ${s.role === 'admin' ? 'badge-project' : 'badge-student'}">${escapeHtml(s.role || 'student')}</span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    window.openDetails = function(id) {
+      const item = inquiries.find(i => i.id === id);
+      if (!item) return;
+
+      const modal = document.getElementById('detail-modal');
+      const title = document.getElementById('modal-title');
+      const content = document.getElementById('modal-content');
+      const emailLink = document.getElementById('modal-email-link');
+
+      title.textContent = `${item.name || 'Client'} — ${item.service || 'Inquiry'}`;
+      content.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md);margin-bottom:var(--space-md);padding-bottom:var(--space-md);border-bottom:1px solid var(--border);">
+          <div><strong style="color:var(--text);">Email / Mail ID:</strong><br/><a href="mailto:${escapeHtml(item.email)}" style="color:var(--accent);">${escapeHtml(item.email)}</a></div>
+          <div><strong style="color:var(--text);">Phone:</strong><br/>${escapeHtml(item.phone || 'N/A')}</div>
+          <div><strong style="color:var(--text);">Preferred Call Time:</strong><br/><span style="color:#34d399;font-weight:600;">${escapeHtml(item.preferredCallTime || 'Anytime')}</span></div>
+          <div><strong style="color:var(--text);">Touchpoint Mode:</strong><br/><span style="color:#60a5fa;font-weight:600;">${escapeHtml(item.touchpointChannel || 'Phone Call')}</span></div>
+          <div><strong style="color:var(--text);">Requirement Category:</strong><br/>${escapeHtml(item.service || 'General')}</div>
+          <div><strong style="color:var(--text);">Timestamp:</strong><br/>${item.timestamp ? new Date(item.timestamp).toLocaleString() : 'N/A'}</div>
+        </div>
+        <div>
+          <strong style="color:var(--text);display:block;margin-bottom:4px;">Message / Requirement Details:</strong>
+          <div style="background:rgba(255,255,255,0.03);padding:var(--space-md);border-radius:var(--radius-md);border:1px solid var(--border);white-space:pre-wrap;color:var(--text);font-family:var(--font-body);">
+            ${escapeHtml(item.message || 'No additional details provided.')}
+          </div>
+        </div>
+      `;
+
+      emailLink.href = `mailto:${encodeURIComponent(item.email)}?subject=${encodeURIComponent('CADC Re: ' + (item.service || 'Your Inquiry'))}`;
+      modal.style.display = 'flex';
+    };
+
+    window.closeModal = function() {
+      document.getElementById('detail-modal').style.display = 'none';
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadData();
+
+      // Check current session
+      try {
+        const user = JSON.parse(localStorage.getItem('cadc_user') || 'null');
+        if (user) {
+          document.getElementById('user-pill').textContent = `👤 ${user.role === 'admin' ? 'Admin' : 'User'}: ${user.email}`;
+        }
+      } catch (e) {}
+
+      document.getElementById('btn-logout').addEventListener('click', () => {
+        localStorage.removeItem('cadc_user');
+        window.location.href = 'login.html';
+      });
+
+      document.getElementById('inquiry-search').addEventListener('input', (e) => {
+        inquirySearchQuery = e.target.value;
+        renderInquiries();
+      });
+
+      document.getElementById('student-search').addEventListener('input', (e) => {
+        studentSearchQuery = e.target.value;
+        renderStudents();
+      });
+
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentInquiryFilter = btn.dataset.filter;
+          renderInquiries();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

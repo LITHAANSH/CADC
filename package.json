@@ -1,0 +1,16 @@
+{
+  "name": "cadc-website",
+  "version": "1.0.0",
+  "description": "CADC Specialist CATIA Design Consultancy & Academy",
+  "main": "index.html",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "dashboard": "node server.js --open-dashboard",
+    "deploy": "npx vercel",
+    "deploy:prod": "npx vercel --prod"
+  },
+  "keywords": ["cad", "catia", "consultancy", "engineering"],
+  "author": "CADC",
+  "license": "ISC"
+}

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Login &amp; Sign Up — CADC</title>
+  <meta name="description" content="Access your CADC student portal or admin dashboard. Sign in or register with your educational background to explore CATIA courses." />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .auth-page-wrap {
+      min-height: calc(100vh - 68px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc(68px + var(--space-2xl)) var(--space-md) var(--space-3xl);
+    }
+
+    .auth-card-box {
+      width: 100%;
+      max-width: 520px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(30,111,255,0.15);
+      position: relative;
+    }
+
+    .auth-tab-switch {
+      display: flex;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 4px;
+      margin-bottom: var(--space-xl);
+    }
+
+    .auth-tab-btn {
+      flex: 1;
+      padding: 10px;
+      font-family: var(--font-head);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--duration) var(--ease);
+      text-align: center;
+    }
+
+    .auth-tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(30,111,255,0.35);
+    }
+
+    .auth-form-panel {
+      display: none;
+    }
+
+    .auth-form-panel.active {
+      display: block;
+    }
+
+    .admin-hint-callout {
+      background: rgba(30,111,255,0.08);
+      border: 1px dashed rgba(30,111,255,0.35);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      margin-top: var(--space-lg);
+      font-size: 0.82rem;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+    }
+
+    .admin-hint-callout code {
+      font-family: var(--font-mono);
+      color: var(--accent-light);
+      background: rgba(0,0,0,0.4);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== NAV ===================== -->
+  <nav class="nav" id="main-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">CAD<span>C</span> <span class="logo-tag">PORTAL</span></a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="services.html">What We Do</a>
+        <a href="academy.html">Courses</a>
+        <a href="work.html">Our Work</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div class="nav-cta">
+        <a href="index.html" class="btn btn-secondary btn-sm">← Back to Site</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================== AUTH HUB ===================== -->
+  <div class="auth-page-wrap">
+    <div class="auth-card-box fade-in">
+      
+      <!-- Tab Switcher -->
+      <div class="auth-tab-switch">
+        <button type="button" class="auth-tab-btn active" id="tab-login-btn">Log In</button>
+        <button type="button" class="auth-tab-btn" id="tab-signup-btn">Create Account</button>
+      </div>
+
+      <!-- ===================== 1. LOGIN PANEL ===================== -->
+      <div class="auth-form-panel active" id="panel-login">
+        <div style="margin-bottom:var(--space-lg);">
+          <h2 style="font-size:1.5rem;margin-bottom:var(--space-xs);">Welcome to CADC</h2>
+          <p style="font-size:0.88rem;color:var(--text-muted);margin:0;">Log in to access your course modules or the admin dashboard.</p>
+        </div>
+
+        <form id="form-login">
+          <div class="form-field mb-md">
+            <label for="login-email">Mail ID (Email Address) *</label>
+            <input type="email" id="login-email" placeholder="name@company.com or lithaansh06@gmail.com" required />
+          </div>
+
+          <div class="form-field mb-lg">
+            <label for="login-password">Password *</label>
+            <input type="password" id="login-password" placeholder="Enter your password" required />
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="btn-login-submit" style="width:100%;justify-content:center;padding:0.85rem;">
+            Sign In →
+          </button>
+
+          <div class="form-status" id="login-status" style="display:none;margin-top:var(--space-md);padding:0.85rem;border-radius:var(--radius-md);font-size:0.85rem;"></div>
+        </form>
+
+        <!-- Pre-configured Admin credentials callout -->
+        <div class="admin-hint-callout">
+          <span style="font-size:1.1rem;">🔑</span>
+          <div>
+            <strong style="color:var(--text);">Admin Access:</strong><br/>
+            Email: <code>lithaansh06@gmail.com</code> | Pass: <code>liki</code><br/>
+            <button type="button" id="btn-fill-admin" style="background:none;border:none;color:var(--accent);font-family:var(--font-mono);font-size:0.75rem;cursor:pointer;padding:0;margin-top:4px;text-decoration:underline;">
+              Click to Auto-Fill Admin Credentials
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== 2. SIGN UP PANEL ===================== -->
+      <div class="auth-form-panel" id="panel-signup">
+        <div style="margin-bottom:var(--space-lg);">
+          <h2 style="font-size:1.5rem;margin-bottom:var(--space-xs);">Student Sign Up</h2>
+          <p style="font-size:0.88rem;color:var(--text-muted);margin:0;">Register to enroll in CATIA course tracks and receive portfolio mentorship.</p>
+        </div>
+
+        <form id="form-signup">
+          <div class="form-field mb-md">
+            <label for="signup-name">Full Name <span style="color:#ef4444;">* (Mandatory)</span></label>
+            <input type="text" id="signup-name" placeholder="e.g. Siddharth Rao / Alex Chen" required />
+          </div>
+
+          <div class="form-field mb-md">
+            <label for="signup-email">Mail ID (Email Address) <span style="color:#ef4444;">* (Mandatory)</span></label>
+            <input type="email" id="signup-email" placeholder="yourname@gmail.com" required />
+          </div>
+
+          <div class="form-field mb-md">
+            <label for="signup-phone">Phone Number <span style="color:#ef4444;">* (Mandatory)</span></label>
+            <input type="tel" id="signup-phone" placeholder="+91 9876543210" required />
+          </div>
+
+          <div class="form-field mb-md">
+            <label for="signup-education">Educational Background <span style="color:#ef4444;">* (Mandatory)</span></label>
+            <select id="signup-education" required>
+              <option value="">Select your education / discipline…</option>
+              <option value="B.E. / B.Tech Mechanical Engineering">B.E. / B.Tech Mechanical Engineering</option>
+              <option value="B.E. / B.Tech Aerospace / Aeronautical Engineering">B.E. / B.Tech Aerospace / Aeronautical Engineering</option>
+              <option value="B.E. / B.Tech Automobile / Automotive Engineering">B.E. / B.Tech Automobile / Automotive Engineering</option>
+              <option value="B.E. / B.Tech Mechatronics & Robotics">B.E. / B.Tech Mechatronics &amp; Robotics</option>
+              <option value="B.E. / B.Tech Industrial & Production Engineering">B.E. / B.Tech Industrial &amp; Production</option>
+              <option value="Diploma in Mechanical / Automobile CAD">Diploma in Mechanical / Automobile CAD</option>
+              <option value="M.Tech / MS in Mechanical / Thermal / Design">M.Tech / MS in Design / Aerospace</option>
+              <option value="Working Industry Design Engineer">Working Industry Design Engineer</option>
+              <option value="Other Technical / Non-Technical Background">Other Technical Background</option>
+            </select>
+          </div>
+
+          <div class="form-field mb-lg">
+            <label for="signup-password">Create Password <span style="color:#ef4444;">* (Mandatory)</span></label>
+            <input type="password" id="signup-password" placeholder="Create a secure password" required />
+          </div>
+
+          <button type="submit" class="btn btn-warm" id="btn-signup-submit" style="width:100%;justify-content:center;padding:0.85rem;">
+            Create Account &amp; Sign In →
+          </button>
+
+          <div class="form-status" id="signup-status" style="display:none;margin-top:var(--space-md);padding:0.85rem;border-radius:var(--radius-md);font-size:0.85rem;"></div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container text-center">
+      <p style="font-size:0.85rem;color:var(--text-dim);">© 2026 CADC Engineering &amp; Academy. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabLoginBtn = document.getElementById('tab-login-btn');
+      const tabSignupBtn = document.getElementById('tab-signup-btn');
+      const panelLogin = document.getElementById('panel-login');
+      const panelSignup = document.getElementById('panel-signup');
+      const btnFillAdmin = document.getElementById('btn-fill-admin');
+
+      // Check URL parameters for tab selection (e.g. login.html?tab=signup)
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('tab') === 'signup') {
+        switchTab('signup');
+      }
+
+      function switchTab(tab) {
+        if (tab === 'signup') {
+          tabSignupBtn.classList.add('active');
+          tabLoginBtn.classList.remove('active');
+          panelSignup.classList.add('active');
+          panelLogin.classList.remove('active');
+        } else {
+          tabLoginBtn.classList.add('active');
+          tabSignupBtn.classList.remove('active');
+          panelLogin.classList.add('active');
+          panelSignup.classList.remove('active');
+        }
+      }
+
+      tabLoginBtn.addEventListener('click', () => switchTab('login'));
+      tabSignupBtn.addEventListener('click', () => switchTab('signup'));
+
+      if (btnFillAdmin) {
+        btnFillAdmin.addEventListener('click', () => {
+          document.getElementById('login-email').value = 'lithaansh06@gmail.com';
+          document.getElementById('login-password').value = 'liki';
+        });
+      }
+
+      // --- LOGIN SUBMIT HANDLER ---
+      const formLogin = document.getElementById('form-login');
+      const loginStatus = document.getElementById('login-status');
+      const btnLoginSubmit = document.getElementById('btn-login-submit');
+
+      formLogin.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        loginStatus.style.display = 'none';
+        btnLoginSubmit.disabled = true;
+        btnLoginSubmit.textContent = 'Authenticating…';
+
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+
+        try {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            loginStatus.style.display = 'block';
+            loginStatus.style.background = 'rgba(16, 185, 129, 0.15)';
+            loginStatus.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+            loginStatus.style.color = '#34d399';
+            loginStatus.textContent = data.message || 'Login successful! Redirecting…';
+
+            // Store user session in localStorage
+            localStorage.setItem('cadc_user', JSON.stringify(data.user));
+
+            setTimeout(() => {
+              window.location.href = data.redirect || '/index.html';
+            }, 800);
+          } else {
+            throw new Error(data.message || 'Login failed. Please check credentials.');
+          }
+        } catch (err) {
+          loginStatus.style.display = 'block';
+          loginStatus.style.background = 'rgba(239, 68, 68, 0.15)';
+          loginStatus.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+          loginStatus.style.color = '#f87171';
+          loginStatus.textContent = err.message;
+          btnLoginSubmit.disabled = false;
+          btnLoginSubmit.textContent = 'Sign In →';
+        }
+      });
+
+      // --- SIGNUP SUBMIT HANDLER ---
+      const formSignup = document.getElementById('form-signup');
+      const signupStatus = document.getElementById('signup-status');
+      const btnSignupSubmit = document.getElementById('btn-signup-submit');
+
+      formSignup.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        signupStatus.style.display = 'none';
+
+        const name = document.getElementById('signup-name').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const phone = document.getElementById('signup-phone').value.trim();
+        const education = document.getElementById('signup-education').value.trim();
+        const password = document.getElementById('signup-password').value;
+
+        if (!name || !email || !phone || !education || !password) {
+          signupStatus.style.display = 'block';
+          signupStatus.style.background = 'rgba(239, 68, 68, 0.15)';
+          signupStatus.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+          signupStatus.style.color = '#f87171';
+          signupStatus.textContent = 'Please fill out all mandatory fields.';
+          return;
+        }
+
+        btnSignupSubmit.disabled = true;
+        btnSignupSubmit.textContent = 'Creating Account…';
+
+        try {
+          const res = await fetch('/api/auth/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, phone, education, password })
+          });
+
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            signupStatus.style.display = 'block';
+            signupStatus.style.background = 'rgba(16, 185, 129, 0.15)';
+            signupStatus.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+            signupStatus.style.color = '#34d399';
+            signupStatus.textContent = 'Account created successfully! Redirecting…';
+
+            // Store user session
+            localStorage.setItem('cadc_user', JSON.stringify(data.user));
+
+            setTimeout(() => {
+              window.location.href = data.user.role === 'admin' ? '/dashboard.html' : '/academy.html';
+            }, 1000);
+          } else {
+            throw new Error(data.message || 'Registration failed.');
+          }
+        } catch (err) {
+          signupStatus.style.display = 'block';
+          signupStatus.style.background = 'rgba(239, 68, 68, 0.15)';
+          signupStatus.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+          signupStatus.style.color = '#f87171';
+          signupStatus.textContent = err.message;
+          btnSignupSubmit.disabled = false;
+          btnSignupSubmit.textContent = 'Create Account & Sign In →';
+        }
+      });
+    });
+  </script>
+  <script src="js/main.js"></script>
+</body>
+</html>
