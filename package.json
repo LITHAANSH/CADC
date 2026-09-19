@@ -2,7 +2,6 @@
   "name": "cadc-website",
   "version": "1.0.0",
   "description": "CADC Specialist CATIA Design Consultancy & Academy",
-  "main": "index.html",
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
