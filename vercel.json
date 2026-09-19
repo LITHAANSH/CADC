@@ -1,3 +1,30 @@
 {
-  "cleanUrls": true
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "{*.html,services/*.html,css/**/*,js/**/*,assets/**/*,data/**/*}",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(about|services|academy|work|contact|login|dashboard|pricing|process|resources|signup|industries)",
+      "dest": "/$1.html"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
 }
