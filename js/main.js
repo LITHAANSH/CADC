@@ -7,7 +7,48 @@
 // 2. Paste the Access Key you receive into the variable below:
 const WEB3FORMS_ACCESS_KEY = '30d9eeb9-656d-4eb2-8afb-683ebda39278';
 
+/* --------------------------------------------------------
+   0. Theme Management (Light / Dark Mode)
+   -------------------------------------------------------- */
+function getPreferredTheme() {
+  const saved = localStorage.getItem('cadc_theme');
+  if (saved) return saved;
+  return 'dark';
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('cadc_theme', theme);
+  
+  // Update desktop toggle buttons
+  document.querySelectorAll('.theme-toggle').forEach(btn => {
+    const isLight = theme === 'light';
+    btn.setAttribute('aria-label', isLight ? 'Switch to Dark Theme' : 'Switch to Light Theme');
+    btn.setAttribute('title', isLight ? 'Switch to Dark Theme' : 'Switch to Light Theme');
+  });
+
+  // Update mobile toggle buttons
+  document.querySelectorAll('.theme-toggle-mobile-badge').forEach(badge => {
+    badge.textContent = theme === 'light' ? '☀️ Light' : '🌙 Dark';
+  });
+}
+
+// Immediate initial execution to prevent flash
+applyTheme(getPreferredTheme());
+
 document.addEventListener('DOMContentLoaded', () => {
+
+  // Re-sync on DOM ready and attach event listeners
+  applyTheme(getPreferredTheme());
+
+  document.querySelectorAll('.theme-toggle, .theme-toggle-mobile').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const nextTheme = current === 'light' ? 'dark' : 'light';
+      applyTheme(nextTheme);
+    });
+  });
 
   /* --------------------------------------------------------
      1. Navigation — scroll class + mobile toggle

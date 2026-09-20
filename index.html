@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CADC — Precision CATIA Design Consultancy &amp; Professional Courses</title>
   <meta name="description" content="Specialist CATIA design consultancy and training academy. We design aerospace and automotive parts, build complex assemblies, and deliver industry-standard professional courses." />
+  <script>
+    (function(){
+      var t = localStorage.getItem('cadc_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -26,6 +32,10 @@
       </div>
       <div class="nav-cta">
         <a href="tel:+917483271232" class="nav-phone">📞 +91 7483271232</a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme" title="Toggle Light / Dark Theme">
+          <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2"></line><line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"></line><line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2"></line><line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"></line></svg>
+        </button>
         <a href="login.html" class="btn btn-secondary btn-sm">Sign In / Up</a>
         <a href="#enquire-now" class="btn btn-primary btn-sm">Enquire Now</a>
         <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle Menu">
@@ -44,6 +54,10 @@
     <a href="work.html">Our Work</a>
     <a href="contact.html">Contact</a>
     <a href="login.html">Login / Register</a>
+    <button class="theme-toggle-mobile" aria-label="Toggle Theme">
+      <span>Theme</span>
+      <span class="theme-toggle-mobile-badge">🌙 Dark</span>
+    </button>
     <a href="#enquire-now" class="btn btn-primary" style="margin-top:1rem;width:100%;text-align:center;">Enquire Now</a>
   </div>
 

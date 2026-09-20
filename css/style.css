@@ -8,16 +8,16 @@
 
 /* --- CSS Custom Properties (Design Tokens) --- */
 :root {
-  /* Colors */
+  /* Colors - Dark Theme (Default) */
   --bg:           #0d1117;
   --bg-2:         #131720;
   --surface:      #181d2a;
   --surface-2:    #1e2436;
   --border:       #252d40;
   --border-hover: #3a4660;
-  --text:         #e2e8f4;
-  --text-muted:   #7a8499;
-  --text-dim:     #4a5268;
+  --text:         #f8fafc;
+  --text-muted:   #94a3b8;
+  --text-dim:     #64748b;
 
   /* Accent */
   --accent:       #1e6fff;
@@ -32,9 +32,9 @@
   --grad-accent:  linear-gradient(135deg, #1e6fff 0%, #0052d4 100%);
 
   /* Typography */
-  --font-head:  'Space Grotesk', sans-serif;
-  --font-body:  'Inter', sans-serif;
-  --font-mono:  'JetBrains Mono', monospace;
+  --font-head:  'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:  'JetBrains Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
 
   /* Spacing */
   --space-xs:   0.25rem;
@@ -58,7 +58,59 @@
 
   /* Shadow */
   --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+  --shadow-card-hover: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(30,111,255,0.2);
   --shadow-accent: 0 0 32px rgba(30,111,255,0.18);
+
+  /* Nav & Background Elements */
+  --nav-bg: rgba(13, 17, 23, 0.85);
+  --nav-scrolled: rgba(13, 17, 23, 0.97);
+  --grid-line-1: rgba(30, 111, 255, 0.04);
+  --grid-line-2: rgba(30, 111, 255, 0.02);
+  --card-hover-tint: rgba(30, 111, 255, 0.07);
+  --code-bg: rgba(0, 0, 0, 0.45);
+  --chip-bg: var(--bg-2);
+  --nav-link-hover-bg: rgba(255, 255, 255, 0.06);
+}
+
+/* Light Theme — "Off-Condensed White" / Technical Precision Aesthetic */
+[data-theme="light"] {
+  /* Refined off-condensed white palette */
+  --bg:           #f4f6fa;
+  --bg-2:         #e9eef5;
+  --surface:      #ffffff;
+  --surface-2:    #f0f4f9;
+  --border:       #cbd5e1;
+  --border-hover: #94a3b8;
+  --text:         #0f172a;
+  --text-muted:   #334155;
+  --text-dim:     #64748b;
+
+  /* Accent */
+  --accent:       #1d4ed8;
+  --accent-light: #2563eb;
+  --accent-glow:  rgba(29, 78, 216, 0.09);
+  --accent-warm:  #d97706;
+  --accent-warm-glow: rgba(217, 119, 6, 0.09);
+
+  /* Gradients */
+  --grad-hero:    linear-gradient(135deg, #f0f4f9 0%, #e2e8f4 50%, #f8fafc 100%);
+  --grad-card:    linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  --grad-accent:  linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+
+  /* Shadows */
+  --shadow-card: 0 4px 20px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+  --shadow-card-hover: 0 12px 32px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(29, 78, 216, 0.25);
+  --shadow-accent: 0 0 24px rgba(29, 78, 216, 0.14);
+
+  /* Nav & Background Elements */
+  --nav-bg: rgba(244, 246, 250, 0.88);
+  --nav-scrolled: rgba(244, 246, 250, 0.98);
+  --grid-line-1: rgba(29, 78, 216, 0.04);
+  --grid-line-2: rgba(29, 78, 216, 0.02);
+  --card-hover-tint: rgba(29, 78, 216, 0.04);
+  --code-bg: rgba(15, 23, 42, 0.06);
+  --chip-bg: #e2e8f0;
+  --nav-link-hover-bg: rgba(15, 23, 42, 0.06);
 }
 
 /* --------------------------------------------------------
@@ -66,7 +118,7 @@
    -------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; font-size: 16px; }
+html { scroll-behavior: smooth; font-size: 16px; color-scheme: dark light; }
 
 body {
   background-color: var(--bg);
@@ -75,7 +127,9 @@ body {
   font-size: 1rem;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease);
 }
 
 /* Blueprint grid background on body */
@@ -84,13 +138,14 @@ body::before {
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(30,111,255,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30,111,255,0.04) 1px, transparent 1px),
-    linear-gradient(rgba(30,111,255,0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30,111,255,0.02) 1px, transparent 1px);
+    linear-gradient(var(--grid-line-1) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-1) 1px, transparent 1px),
+    linear-gradient(var(--grid-line-2) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-2) 1px, transparent 1px);
   background-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px;
   pointer-events: none;
   z-index: 0;
+  transition: background-image var(--duration) var(--ease);
 }
 
 /* Ensure all sections sit above the grid */
@@ -297,13 +352,13 @@ p.lead { font-size: 1.15rem; color: var(--text); max-width: 55ch; }
   border-radius: var(--radius-lg);
   opacity: 0;
   transition: opacity var(--duration) var(--ease);
-  background: linear-gradient(135deg, rgba(30,111,255,0.07) 0%, transparent 60%);
+  background: linear-gradient(135deg, var(--card-hover-tint) 0%, transparent 60%);
 }
 
 .card:hover {
   border-color: var(--accent);
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(30,111,255,0.2);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .card:hover::before { opacity: 1; }
@@ -335,7 +390,7 @@ p.lead { font-size: 1.15rem; color: var(--text); max-width: 55ch; }
   top: 0; left: 0; right: 0;
   z-index: 1000;
   padding: 0;
-  background: rgba(13,17,23,0.85);
+  background: var(--nav-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
@@ -343,8 +398,8 @@ p.lead { font-size: 1.15rem; color: var(--text); max-width: 55ch; }
 }
 
 .nav.scrolled {
-  background: rgba(13,17,23,0.97);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  background: var(--nav-scrolled);
+  box-shadow: var(--shadow-card);
 }
 
 .nav-inner {
@@ -404,13 +459,97 @@ p.lead { font-size: 1.15rem; color: var(--text); max-width: 55ch; }
 
 .nav-links a:hover, .nav-links a.active {
   color: var(--text);
-  background: rgba(255,255,255,0.06);
+  background: var(--nav-link-hover-bg);
 }
 
 .nav-cta {
   display: flex;
   align-items: center;
   gap: var(--space-md);
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  transition: transform var(--duration) var(--ease), opacity var(--duration) var(--ease);
+}
+
+.theme-toggle .icon-sun {
+  display: none;
+}
+
+.theme-toggle .icon-moon {
+  display: block;
+}
+
+[data-theme="light"] .theme-toggle .icon-sun {
+  display: block;
+}
+
+[data-theme="light"] .theme-toggle .icon-moon {
+  display: none;
+}
+
+.theme-toggle-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--font-head);
+  font-size: 1rem;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.theme-toggle-mobile:hover {
+  color: var(--accent);
+}
+
+.theme-toggle-mobile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
 }
 
 /* Mobile hamburger */
@@ -2466,3 +2605,112 @@ p.lead { font-size: 1.15rem; color: var(--text); max-width: 55ch; }
   .btn { width: 100%; justify-content: center; }
   .enquire-card { padding: var(--space-xl) var(--space-md); }
 }
+
+/* ========================================================
+   Light Theme ("Off-Condensed White") Explicit Overrides
+   ======================================================== */
+[data-theme="light"] .btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+[data-theme="light"] .btn-secondary:hover {
+  background: var(--accent-glow);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+[data-theme="light"] .pricing-card.featured {
+  background: linear-gradient(135deg, #f0f7ff 0%, #e2eefd 100%);
+  border-color: var(--accent);
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.12);
+}
+
+[data-theme="light"] .pricing-card.featured::before {
+  color: #ffffff;
+  background: var(--accent);
+}
+
+[data-theme="light"] .faq-card.open {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+  border-color: var(--accent);
+}
+
+[data-theme="light"] .enquire-section-wrap {
+  background: linear-gradient(180deg, rgba(233,238,245,0.7) 0%, rgba(244,246,250,0.95) 100%);
+}
+
+[data-theme="light"] .enquire-card {
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(29, 78, 216, 0.15);
+}
+
+[data-theme="light"] .chip-label {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .chip-option input[type="radio"]:checked + .chip-label {
+  background: var(--accent-glow);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 0 12px rgba(29, 78, 216, 0.15);
+}
+
+[data-theme="light"] .form-field input,
+[data-theme="light"] .form-field select,
+[data-theme="light"] .form-field textarea {
+  background: #ffffff;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+[data-theme="light"] .form-field input::placeholder,
+[data-theme="light"] .form-field textarea::placeholder {
+  color: var(--text-dim);
+}
+
+[data-theme="light"] .form-field input:focus,
+[data-theme="light"] .form-field select:focus,
+[data-theme="light"] .form-field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+}
+
+[data-theme="light"] .tag--muted {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+[data-theme="light"] .auth-card-box {
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(29, 78, 216, 0.15);
+}
+
+[data-theme="light"] .admin-hint-callout {
+  background: rgba(29, 78, 216, 0.06);
+  border-color: rgba(29, 78, 216, 0.25);
+}
+
+[data-theme="light"] .admin-hint-callout code {
+  background: #e2e8f0;
+  color: var(--accent);
+}
+
+[data-theme="light"] .contact-info-icon {
+  background: rgba(29, 78, 216, 0.08);
+  border-color: rgba(29, 78, 216, 0.2);
+}
+
+[data-theme="light"] .tool-chip {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+[data-theme="light"] .hero-image img,
+[data-theme="light"] .case-card-image img,
+[data-theme="light"] .program-card-image img {
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+}
+
