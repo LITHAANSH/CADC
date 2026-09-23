@@ -200,6 +200,45 @@ async function runE2ETests() {
     assert.ok(recent.touchpointChannel, 'Inquiry must have touchpointChannel');
   });
 
+  // --- SECTION 6: Supabase & Admin Stats & Inquiry Status Updates ---
+  await test('GET /api/admin/stats returns aggregate metrics and backend engine', async () => {
+    const res = await fetch(`${BASE_URL}/api/admin/stats`);
+    const data = await res.json();
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(data.success, true);
+    assert.ok(typeof data.stats.totalInquiries === 'number', 'totalInquiries must be a number');
+    assert.ok(typeof data.stats.totalUsers === 'number', 'totalUsers must be a number');
+    assert.ok(typeof data.stats.engine === 'string', 'engine descriptor must be present');
+  });
+
+  await test('POST /api/admin/inquiry-status updates status of an existing inquiry', async () => {
+    const inqRes = await fetch(`${BASE_URL}/api/inquiries`);
+    const inqData = await inqRes.json();
+    assert.ok(inqData.inquiries && inqData.inquiries.length > 0, 'Must have at least one inquiry');
+    const targetId = inqData.inquiries[0].id;
+
+    const res = await fetch(`${BASE_URL}/api/admin/inquiry-status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: targetId, status: 'Contacted' })
+    });
+    const data = await res.json();
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(data.success, true);
+    assert.strictEqual(data.inquiry.status, 'contacted');
+  });
+
+  await test('POST /api/admin/inquiry-status rejects invalid status', async () => {
+    const res = await fetch(`${BASE_URL}/api/admin/inquiry-status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'some-id', status: 'InvalidStatusXYZ' })
+    });
+    const data = await res.json();
+    assert.strictEqual(res.status, 400);
+    assert.strictEqual(data.success, false);
+  });
+
   console.log('\n====================================================');
   console.log(`📊 E2E Test Summary: ${passed} Passed | ${failed} Failed`);
   console.log('====================================================\n');

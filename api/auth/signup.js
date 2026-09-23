@@ -1,4 +1,4 @@
-const { readDb, saveDb } = require('../_db');
+const supabaseService = require('../_supabase');
 
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -32,34 +32,16 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    const db = readDb();
-    const existing = db.users.find(u => u.email.toLowerCase() === email);
-    if (existing) {
-      return res.status(409).json({
-        success: false,
-        message: 'An account with this email address already exists. Please log in.'
-      });
+    const result = await supabaseService.signUpUser({ name, email, phone, education, password });
+    if (!result.success) {
+      return res.status(result.status || 400).json(result);
     }
 
-    const newUser = {
-      id: 'USR-' + Math.floor(100000 + Math.random() * 900000),
-      name,
-      email,
-      phone,
-      education,
-      password,
-      role: email === 'lithaansh06@gmail.com' ? 'admin' : 'student',
-      createdAt: new Date().toISOString()
-    };
-
-    db.users.push(newUser);
-    saveDb(db);
-
-    const { password: _, ...safeUser } = newUser;
     return res.status(201).json({
       success: true,
       message: 'Account created successfully!',
-      user: safeUser
+      user: result.user,
+      source: result.source
     });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });

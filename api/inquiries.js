@@ -1,4 +1,4 @@
-const { readDb, saveDb } = require('./_db');
+const supabaseService = require('./_supabase');
 
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,12 +16,8 @@ module.exports = async function handler(req, res) {
   // GET: Retrieve inquiries list
   if (req.method === 'GET') {
     try {
-      const db = readDb();
-      return res.status(200).json({
-        success: true,
-        count: (db.inquiries || []).length,
-        inquiries: db.inquiries || []
-      });
+      const result = await supabaseService.getInquiries();
+      return res.status(200).json(result);
     } catch (err) {
       return res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });
     }
@@ -34,11 +30,6 @@ module.exports = async function handler(req, res) {
       const name = (body.name || '').trim();
       const email = (body.email || '').trim();
       const phone = (body.phone || '').trim();
-      const preferredCallTime = body.preferred_call_time || body.preferredCallTime || 'Anytime';
-      const touchpointChannel = body.touchpoint_channel || body.touchpointChannel || 'Phone Call';
-      const service = body.interest || body.program || body.service || 'General Enquiry';
-      const message = body.message || '';
-      const formType = body.formType || 'Homepage Quick Enquiry';
 
       if (!name || !email || !phone) {
         return res.status(400).json({
@@ -47,29 +38,12 @@ module.exports = async function handler(req, res) {
         });
       }
 
-      const db = readDb();
-      db.inquiries = db.inquiries || [];
-
-      const newInquiry = {
-        id: 'REQ-' + Math.floor(100000 + Math.random() * 900000),
-        timestamp: new Date().toISOString(),
-        name,
-        email,
-        phone,
-        service,
-        preferredCallTime,
-        touchpointChannel,
-        message,
-        formType
-      };
-
-      db.inquiries.unshift(newInquiry);
-      saveDb(db);
-
+      const result = await supabaseService.recordInquiry(body);
       return res.status(201).json({
         success: true,
         message: 'Enquiry recorded successfully!',
-        inquiry: newInquiry
+        inquiry: result.inquiry,
+        source: result.source
       });
     } catch (err) {
       return res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });

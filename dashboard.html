@@ -249,8 +249,9 @@
           </div>
           <div class="metric-card">
             <span class="label">Backend Database</span>
-            <span style="font-size:1rem;color:#34d399;font-weight:600;display:flex;align-items:center;gap:6px;margin-top:6px;">
-              <span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;"></span> Active (data/db.json)
+            <span id="stat-backend-badge" style="font-size:0.95rem;color:#34d399;font-weight:600;display:flex;align-items:center;gap:6px;margin-top:6px;">
+              <span id="backend-dot" style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;"></span>
+              <span id="backend-label">Dual-Mode Ready</span>
             </span>
           </div>
         </div>
@@ -388,8 +389,22 @@
       }
     }
 
+    let activeInquiryId = null;
+
     async function loadData() {
-      // 1. Fetch Inquiries from backend API (with localStorage fallback)
+      // 1. Fetch Backend Stats & Engine Status
+      try {
+        const statsRes = await fetch('/api/admin/stats');
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          if (statsData.stats) {
+            document.getElementById('backend-label').textContent = statsData.stats.isSupabaseConnected ? '🟢 Supabase (Postgres)' : '🟡 Local Dual-Mode';
+            document.getElementById('backend-dot').style.background = statsData.stats.isSupabaseConnected ? '#34d399' : '#fbbf24';
+          }
+        }
+      } catch (e) {}
+
+      // 2. Fetch Inquiries from backend API (with localStorage fallback)
       try {
         const res = await fetch('/api/inquiries');
         if (res.ok) {
@@ -406,7 +421,7 @@
         }
       }
 
-      // 2. Fetch Students / Registered Users
+      // 3. Fetch Students / Registered Users
       fetchStudents();
       renderInquiries();
     }
@@ -426,12 +441,22 @@
       renderStudents();
     }
 
+    function getStatusBadge(status) {
+      const s = (status || 'new').toLowerCase();
+      if (s === 'converted') return '<span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-family:var(--font-mono);font-weight:600;">⭐ Converted</span>';
+      if (s === 'contacted') return '<span style="background:rgba(59,130,246,0.15);color:#60a5fa;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-family:var(--font-mono);font-weight:600;">🔵 Contacted</span>';
+      if (s === 'in_review') return '<span style="background:rgba(168,85,247,0.15);color:#c084fc;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-family:var(--font-mono);font-weight:600;">🟡 In Review</span>';
+      if (s === 'archived') return '<span style="background:rgba(148,163,184,0.15);color:#94a3b8;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-family:var(--font-mono);font-weight:600;">⚪ Archived</span>';
+      return '<span style="background:rgba(16,185,129,0.15);color:#34d399;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-family:var(--font-mono);font-weight:600;">🟢 New</span>';
+    }
+
     function renderInquiries() {
       const tbody = document.getElementById('inquiries-tbody');
       const emptyState = document.getElementById('inquiries-empty-state');
       
       let filtered = inquiries.filter(item => {
-        const matchesFilter = (currentInquiryFilter === 'all') || (item.formType === currentInquiryFilter);
+        const itemFormType = item.form_type || item.formType || 'Homepage Quick Enquiry';
+        const matchesFilter = (currentInquiryFilter === 'all') || (itemFormType === currentInquiryFilter);
         const q = inquirySearchQuery.toLowerCase();
         const matchesSearch = !q || 
           (item.name && item.name.toLowerCase().includes(q)) ||
@@ -444,7 +469,7 @@
       document.getElementById('stat-total').textContent = inquiries.length;
       document.getElementById('count-all').textContent = inquiries.length;
       document.getElementById('count-inquiries-tab').textContent = inquiries.length;
-      document.getElementById('stat-projects').textContent = inquiries.filter(i => i.formType === 'Client Project').length;
+      document.getElementById('stat-projects').textContent = inquiries.filter(i => (i.form_type || i.formType) === 'Client Project').length;
 
       if (filtered.length === 0) {
         tbody.innerHTML = '';
@@ -454,8 +479,10 @@
 
       emptyState.style.display = 'none';
       tbody.innerHTML = filtered.map(item => {
-        const badgeClass = item.formType === 'Academy Course' ? 'badge-academy' : 'badge-project';
-        const formattedDate = item.timestamp ? new Date(item.timestamp).toLocaleDateString(undefined, {
+        const itemFormType = item.form_type || item.formType || 'Homepage Quick Enquiry';
+        const badgeClass = itemFormType === 'Academy Course' ? 'badge-academy' : 'badge-project';
+        const ts = item.created_at || item.timestamp;
+        const formattedDate = ts ? new Date(ts).toLocaleDateString(undefined, {
           month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
         }) : 'Recent';
 
@@ -470,16 +497,17 @@
               <div style="font-size:0.8rem;color:var(--text-muted);">${escapeHtml(item.phone || '')}</div>
             </td>
             <td>
-              <span style="color:#34d399;font-family:var(--font-mono);font-size:0.82rem;">${escapeHtml(item.preferredCallTime || 'Anytime')}</span>
+              <span style="color:#34d399;font-family:var(--font-mono);font-size:0.82rem;">${escapeHtml(item.preferred_call_time || item.preferredCallTime || 'Anytime')}</span>
             </td>
             <td>
-              <span style="color:#60a5fa;font-family:var(--font-mono);font-size:0.82rem;">${escapeHtml(item.touchpointChannel || 'Phone Call')}</span>
+              <span style="color:#60a5fa;font-family:var(--font-mono);font-size:0.82rem;">${escapeHtml(item.touchpoint_channel || item.touchpointChannel || 'Phone Call')}</span>
             </td>
             <td>
               <span class="badge-tag ${badgeClass}">${escapeHtml(item.service || 'General')}</span>
             </td>
             <td style="text-align:right;white-space:nowrap;">
-              <button class="action-btn" onclick="openDetails('${item.id}')">View</button>
+              ${getStatusBadge(item.status)}
+              <button class="action-btn" style="margin-left:6px;" onclick="openDetails('${item.id}')">Manage</button>
             </td>
           </tr>
         `;
@@ -510,7 +538,8 @@
 
       emptyState.style.display = 'none';
       tbody.innerHTML = filtered.map(s => {
-        const formattedDate = s.createdAt ? new Date(s.createdAt).toLocaleDateString(undefined, {
+        const ts = s.created_at || s.createdAt;
+        const formattedDate = ts ? new Date(ts).toLocaleDateString(undefined, {
           month: 'short', day: 'numeric', year: 'numeric'
         }) : 'Recent';
 
@@ -519,11 +548,11 @@
             <td style="font-family:var(--font-mono);font-size:0.8rem;color:var(--text-muted);white-space:nowrap;">
               ${formattedDate}
             </td>
-            <td style="font-weight:600;white-space:nowrap;">${escapeHtml(s.name)}</td>
+            <td style="font-weight:600;white-space:nowrap;">${escapeHtml(s.name || s.full_name || 'Student')}</td>
             <td><a href="mailto:${escapeHtml(s.email)}" style="color:var(--accent);">${escapeHtml(s.email)}</a></td>
             <td style="font-family:var(--font-mono);font-size:0.85rem;">${escapeHtml(s.phone || '—')}</td>
             <td>
-              <span style="color:#fbbf24;font-weight:500;">${escapeHtml(s.education || 'Not specified')}</span>
+              <span style="color:#fbbf24;font-weight:500;">${escapeHtml(s.education || s.education_background || 'Engineering Background')}</span>
             </td>
             <td>
               <span class="badge-tag ${s.role === 'admin' ? 'badge-project' : 'badge-student'}">${escapeHtml(s.role || 'student')}</span>
@@ -539,6 +568,7 @@
     }
 
     window.openDetails = function(id) {
+      activeInquiryId = id;
       const item = inquiries.find(i => i.id === id);
       if (!item) return;
 
@@ -547,20 +577,37 @@
       const content = document.getElementById('modal-content');
       const emailLink = document.getElementById('modal-email-link');
 
-      title.textContent = `${item.name || 'Client'} — ${item.service || 'Inquiry'}`;
+      title.textContent = `${item.name || 'Client'} — ${item.service || 'Inquiry'} (${item.id})`;
+      const ts = item.created_at || item.timestamp;
+
       content.innerHTML = `
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md);margin-bottom:var(--space-md);padding-bottom:var(--space-md);border-bottom:1px solid var(--border);">
           <div><strong style="color:var(--text);">Email / Mail ID:</strong><br/><a href="mailto:${escapeHtml(item.email)}" style="color:var(--accent);">${escapeHtml(item.email)}</a></div>
           <div><strong style="color:var(--text);">Phone:</strong><br/>${escapeHtml(item.phone || 'N/A')}</div>
-          <div><strong style="color:var(--text);">Preferred Call Time:</strong><br/><span style="color:#34d399;font-weight:600;">${escapeHtml(item.preferredCallTime || 'Anytime')}</span></div>
-          <div><strong style="color:var(--text);">Touchpoint Mode:</strong><br/><span style="color:#60a5fa;font-weight:600;">${escapeHtml(item.touchpointChannel || 'Phone Call')}</span></div>
+          <div><strong style="color:var(--text);">Preferred Call Time:</strong><br/><span style="color:#34d399;font-weight:600;">${escapeHtml(item.preferred_call_time || item.preferredCallTime || 'Anytime')}</span></div>
+          <div><strong style="color:var(--text);">Touchpoint Mode:</strong><br/><span style="color:#60a5fa;font-weight:600;">${escapeHtml(item.touchpoint_channel || item.touchpointChannel || 'Phone Call')}</span></div>
           <div><strong style="color:var(--text);">Requirement Category:</strong><br/>${escapeHtml(item.service || 'General')}</div>
-          <div><strong style="color:var(--text);">Timestamp:</strong><br/>${item.timestamp ? new Date(item.timestamp).toLocaleString() : 'N/A'}</div>
+          <div><strong style="color:var(--text);">Timestamp:</strong><br/>${ts ? new Date(ts).toLocaleString() : 'N/A'}</div>
         </div>
-        <div>
+        <div style="margin-bottom:var(--space-md);">
           <strong style="color:var(--text);display:block;margin-bottom:4px;">Message / Requirement Details:</strong>
           <div style="background:rgba(255,255,255,0.03);padding:var(--space-md);border-radius:var(--radius-md);border:1px solid var(--border);white-space:pre-wrap;color:var(--text);font-family:var(--font-body);">
             ${escapeHtml(item.message || 'No additional details provided.')}
+          </div>
+        </div>
+        <div style="margin-bottom:var(--space-md);display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap;background:var(--bg-2);padding:var(--space-md);border-radius:var(--radius-md);border:1px solid var(--border);">
+          <div>
+            <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:4px;">Workflow Status:</label>
+            <select id="modal-status-select" style="background:var(--surface);color:var(--text);border:1px solid var(--border);padding:6px 12px;border-radius:var(--radius-md);font-size:0.85rem;">
+              <option value="new" ${item.status === 'new' ? 'selected' : ''}>🟢 New Inquiry</option>
+              <option value="in_review" ${item.status === 'in_review' ? 'selected' : ''}>🟡 In Review / Quoting</option>
+              <option value="contacted" ${item.status === 'contacted' ? 'selected' : ''}>🔵 Contacted / Scheduled</option>
+              <option value="converted" ${item.status === 'converted' ? 'selected' : ''}>⭐ Converted Client / Enrolled</option>
+              <option value="archived" ${item.status === 'archived' ? 'selected' : ''}>⚪ Closed / Archived</option>
+            </select>
+          </div>
+          <div style="align-self:flex-end;">
+            <button class="btn btn-secondary btn-sm" id="modal-save-status-btn" onclick="saveModalStatus()">Save Status</button>
           </div>
         </div>
       `;
@@ -569,8 +616,47 @@
       modal.style.display = 'flex';
     };
 
+    window.saveModalStatus = async function() {
+      if (!activeInquiryId) return;
+      const statusSelect = document.getElementById('modal-status-select');
+      const btn = document.getElementById('modal-save-status-btn');
+      const newStatus = statusSelect ? statusSelect.value : 'new';
+
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+
+      try {
+        const res = await fetch('/api/admin/inquiry-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: activeInquiryId, status: newStatus })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          const item = inquiries.find(i => i.id === activeInquiryId);
+          if (item) {
+            item.status = newStatus;
+          }
+          renderInquiries();
+          btn.textContent = 'Saved! ✓';
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.textContent = 'Save Status';
+            closeModal();
+          }, 500);
+        } else {
+          throw new Error(data.message || 'Status update failed');
+        }
+      } catch (err) {
+        alert('Could not update status: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = 'Save Status';
+      }
+    };
+
     window.closeModal = function() {
       document.getElementById('detail-modal').style.display = 'none';
+      activeInquiryId = null;
     };
 
     document.addEventListener('DOMContentLoaded', () => {

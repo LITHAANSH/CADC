@@ -5,9 +5,14 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
+    "test": "node test-e2e.js",
     "dashboard": "node server.js --open-dashboard",
     "deploy": "npx vercel",
     "deploy:prod": "npx vercel --prod"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "dotenv": "^16.4.7"
   },
   "keywords": ["cad", "catia", "consultancy", "engineering"],
   "author": "CADC",

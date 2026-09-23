@@ -1,4 +1,4 @@
-const { readDb } = require('../_db');
+const supabaseService = require('../_supabase');
 
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -18,13 +18,8 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const db = readDb();
-    const safeUsers = (db.users || []).map(({ password, ...u }) => u);
-    return res.status(200).json({
-      success: true,
-      count: safeUsers.length,
-      users: safeUsers
-    });
+    const result = await supabaseService.getUsers();
+    return res.status(200).json(result);
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });
   }

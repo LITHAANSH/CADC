@@ -1,4 +1,4 @@
-const { readDb, saveDb } = require('../_db');
+const supabaseService = require('../_supabase');
 
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -29,50 +29,12 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    const db = readDb();
-
-    // Admin authentication
-    if (email === 'lithaansh06@gmail.com' && password === 'liki') {
-      let adminUser = db.users.find(u => u.email === 'lithaansh06@gmail.com');
-      if (!adminUser) {
-        adminUser = {
-          id: 'USR-ADMIN-01',
-          name: 'Lithaansh (Admin)',
-          email: 'lithaansh06@gmail.com',
-          phone: '+91 7483271232',
-          education: 'Aerospace & Automotive Engineering Leadership',
-          password: 'liki',
-          role: 'admin',
-          createdAt: new Date().toISOString()
-        };
-        db.users.push(adminUser);
-        saveDb(db);
-      }
-      const { password: _, ...safeAdmin } = adminUser;
-      return res.status(200).json({
-        success: true,
-        message: 'Admin authentication successful!',
-        user: safeAdmin,
-        redirect: '/dashboard.html'
-      });
+    const result = await supabaseService.signInUser(email, password);
+    if (!result.success) {
+      return res.status(result.status || 401).json(result);
     }
 
-    // Student authentication
-    const user = db.users.find(u => u.email.toLowerCase() === email && u.password === password);
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email address or password. Please try again.'
-      });
-    }
-
-    const { password: _, ...safeUser } = user;
-    return res.status(200).json({
-      success: true,
-      message: `Welcome back, ${user.name}!`,
-      user: safeUser,
-      redirect: user.role === 'admin' ? '/dashboard.html' : '/academy.html'
-    });
+    return res.status(200).json(result);
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });
   }

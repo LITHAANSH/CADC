@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Save submission to local dashboard store
+      // Save submission record
       const record = {
         id: 'REQ-' + Math.floor(100000 + Math.random() * 900000),
         timestamp: new Date().toISOString(),
@@ -310,6 +310,23 @@ document.addEventListener('DOMContentLoaded', () => {
         formType: form.id === 'academy-form' ? 'Academy Course' : (form.id === 'enquire-home-form' ? 'Homepage Quick Enquiry' : 'Client Project')
       };
 
+      // 1. Post to CADC Backend API (Supabase & local DB persistence)
+      let backendSaved = false;
+      try {
+        const apiRes = await fetch('/api/inquiries', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(record)
+        });
+        const apiData = await apiRes.json();
+        if (apiRes.ok && apiData.success) {
+          backendSaved = true;
+        }
+      } catch (err) {
+        console.warn('Backend API submission note:', err.message);
+      }
+
+      // Also cache in local browser store as backup
       try {
         const all = JSON.parse(localStorage.getItem('cadc_submissions') || '[]');
         all.unshift(record);
@@ -318,57 +335,32 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn('Could not cache submission locally:', err);
       }
 
-      // Check if access key is still placeholder or demo
-      if (!WEB3FORMS_ACCESS_KEY || WEB3FORMS_ACCESS_KEY === 'YOUR_ACCESS_KEY_HERE') {
-        setTimeout(() => {
-          btn.textContent = 'Enquiry Received! ✓';
-          btn.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
-          setStatus('success', `Thank you, ${record.name}! We have received your enquiry and will connect via ${touchpointChannel} during your preferred time window (${preferredCallTime}).`);
-          form.reset();
-          setTimeout(() => {
-            btn.textContent = originalText;
-            btn.style.background = '';
-            btn.disabled = false;
-          }, 5000);
-        }, 600);
-        return;
-      }
-
-      if (!formData.get('access_key')) {
-        formData.append('access_key', WEB3FORMS_ACCESS_KEY);
-      }
-
-      try {
-        const response = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          body: formData
-        });
-        const data = await response.json();
-
-        if (data.success) {
-          btn.textContent = 'Enquiry Sent! ✓';
-          btn.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
-          setStatus('success', `Thank you, ${record.name}! Your enquiry has been received. Our team will reach out via ${touchpointChannel} at your preferred time (${preferredCallTime}).`);
-
-          form.reset();
-          setTimeout(() => {
-            btn.textContent = originalText;
-            btn.style.background = '';
-            btn.disabled = false;
-          }, 5000);
-        } else {
-          throw new Error(data.message || 'Submission failed');
+      // 2. Email Delivery via Web3Forms (if configured)
+      if (WEB3FORMS_ACCESS_KEY && WEB3FORMS_ACCESS_KEY !== 'YOUR_ACCESS_KEY_HERE') {
+        if (!formData.get('access_key')) {
+          formData.append('access_key', WEB3FORMS_ACCESS_KEY);
         }
-      } catch (err) {
-        btn.textContent = 'Enquiry Recorded ✓';
-        btn.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
-        setStatus('success', `Thank you! Your enquiry has been recorded locally. We will connect with you via ${touchpointChannel} (${preferredCallTime}).`);
-        setTimeout(() => {
-          btn.textContent = originalText;
-          btn.style.background = '';
-          btn.disabled = false;
-        }, 4000);
+        try {
+          await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            body: formData
+          });
+        } catch (emailErr) {
+          console.warn('Web3Forms delivery note:', emailErr.message);
+        }
       }
+
+      // Success UI Feedback
+      btn.textContent = 'Enquiry Received! ✓';
+      btn.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+      setStatus('success', `Thank you, ${record.name}! Your enquiry has been recorded in our system. Our engineering team will connect via ${touchpointChannel} during your preferred time (${preferredCallTime}).`);
+      form.reset();
+
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 5000);
     });
   });
 

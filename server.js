@@ -4,10 +4,14 @@ const path = require('path');
 const net = require('net');
 const { exec } = require('child_process');
 
+try {
+  require('dotenv').config({ path: path.join(__dirname, '.env') });
+} catch (e) {}
+
+const supabaseService = require('./api/_supabase');
+
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;
 const PUBLIC_DIR = __dirname;
-const DATA_DIR = path.join(__dirname, 'data');
-const DB_FILE = path.join(DATA_DIR, 'db.json');
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -26,72 +30,6 @@ const MIME_TYPES = {
   '.ttf': 'font/ttf',
   '.txt': 'text/plain; charset=utf-8'
 };
-
-// --- In-Memory & Persistent JSON Database ---
-function initDatabase() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-
-  const defaultDb = {
-    users: [
-      {
-        id: 'USR-ADMIN-01',
-        name: 'Lithaansh (Admin)',
-        email: 'lithaansh06@gmail.com',
-        phone: '+91 7483271232',
-        education: 'Aerospace & Automotive Engineering Leadership',
-        password: 'liki',
-        role: 'admin',
-        createdAt: '2026-01-01T00:00:00.000Z'
-      }
-    ],
-    inquiries: []
-  };
-
-  if (!fs.existsSync(DB_FILE)) {
-    fs.writeFileSync(DB_FILE, JSON.stringify(defaultDb, null, 2), 'utf-8');
-    return defaultDb;
-  }
-
-  try {
-    const content = fs.readFileSync(DB_FILE, 'utf-8');
-    const parsed = JSON.parse(content);
-    // Ensure admin exists
-    const hasAdmin = (parsed.users || []).some(u => u.email === 'lithaansh06@gmail.com');
-    if (!hasAdmin) {
-      parsed.users = parsed.users || [];
-      parsed.users.unshift(defaultDb.users[0]);
-      fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2), 'utf-8');
-    }
-    return parsed;
-  } catch (err) {
-    console.warn('Error loading db.json, re-initializing with defaults:', err);
-    fs.writeFileSync(DB_FILE, JSON.stringify(defaultDb, null, 2), 'utf-8');
-    return defaultDb;
-  }
-}
-
-function readDb() {
-  try {
-    return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
-  } catch (err) {
-    return initDatabase();
-  }
-}
-
-function writeDb(data) {
-  try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
-    return true;
-  } catch (err) {
-    console.error('Error writing to db.json:', err);
-    return false;
-  }
-}
-
-// Initial DB Check
-initDatabase();
 
 // --- Helper Functions ---
 function parseJsonBody(req) {
@@ -119,7 +57,7 @@ function sendJson(res, statusCode, data) {
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Cache-Control': 'no-cache'
   });
@@ -133,7 +71,7 @@ function createServer() {
     if (req.method === 'OPTIONS') {
       res.writeHead(204, {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization'
       });
       res.end();
@@ -164,36 +102,8 @@ function createServer() {
           });
         }
 
-        const db = readDb();
-        const existing = db.users.find(u => u.email.toLowerCase() === email);
-        if (existing) {
-          return sendJson(res, 409, {
-            success: false,
-            message: 'An account with this email address already exists. Please log in.'
-          });
-        }
-
-        const newUser = {
-          id: 'USR-' + Math.floor(100000 + Math.random() * 900000),
-          name,
-          email,
-          phone,
-          education,
-          password,
-          role: email === 'lithaansh06@gmail.com' ? 'admin' : 'student',
-          createdAt: new Date().toISOString()
-        };
-
-        db.users.push(newUser);
-        writeDb(db);
-
-        // Strip password for response
-        const { password: _, ...safeUser } = newUser;
-        return sendJson(res, 201, {
-          success: true,
-          message: 'Account created successfully!',
-          user: safeUser
-        });
+        const result = await supabaseService.signUpUser({ name, email, phone, education, password });
+        return sendJson(res, result.status || (result.success ? 201 : 400), result);
       } catch (err) {
         return sendJson(res, 500, { success: false, message: err.message });
       }
@@ -213,65 +123,18 @@ function createServer() {
           });
         }
 
-        const db = readDb();
-
-        // Check for Admin credentials
-        if (email === 'lithaansh06@gmail.com' && password === 'liki') {
-          let adminUser = db.users.find(u => u.email === 'lithaansh06@gmail.com');
-          if (!adminUser) {
-            adminUser = {
-              id: 'USR-ADMIN-01',
-              name: 'Lithaansh (Admin)',
-              email: 'lithaansh06@gmail.com',
-              phone: '+91 7483271232',
-              education: 'Aerospace & Automotive Engineering Leadership',
-              password: 'liki',
-              role: 'admin',
-              createdAt: new Date().toISOString()
-            };
-            db.users.push(adminUser);
-            writeDb(db);
-          }
-          const { password: _, ...safeAdmin } = adminUser;
-          return sendJson(res, 200, {
-            success: true,
-            message: 'Admin authentication successful!',
-            user: safeAdmin,
-            redirect: '/dashboard.html'
-          });
-        }
-
-        // Check regular user login
-        const user = db.users.find(u => u.email.toLowerCase() === email && u.password === password);
-        if (!user) {
-          return sendJson(res, 401, {
-            success: false,
-            message: 'Invalid email address or password. Please try again.'
-          });
-        }
-
-        const { password: _, ...safeUser } = user;
-        return sendJson(res, 200, {
-          success: true,
-          message: `Welcome back, ${user.name}!`,
-          user: safeUser,
-          redirect: user.role === 'admin' ? '/dashboard.html' : '/academy.html'
-        });
+        const result = await supabaseService.signInUser(email, password);
+        return sendJson(res, result.status || (result.success ? 200 : 401), result);
       } catch (err) {
         return sendJson(res, 500, { success: false, message: err.message });
       }
     }
 
-    // 3. ADMIN: GET /api/admin/users
+    // 3. ADMIN USERS: GET /api/admin/users
     if (req.method === 'GET' && pathname === '/api/admin/users') {
       try {
-        const db = readDb();
-        const safeUsers = db.users.map(({ password, ...u }) => u);
-        return sendJson(res, 200, {
-          success: true,
-          count: safeUsers.length,
-          users: safeUsers
-        });
+        const result = await supabaseService.getUsers();
+        return sendJson(res, 200, result);
       } catch (err) {
         return sendJson(res, 500, { success: false, message: err.message });
       }
@@ -280,12 +143,8 @@ function createServer() {
     // 4. INQUIRIES: GET & POST /api/inquiries
     if (req.method === 'GET' && pathname === '/api/inquiries') {
       try {
-        const db = readDb();
-        return sendJson(res, 200, {
-          success: true,
-          count: (db.inquiries || []).length,
-          inquiries: db.inquiries || []
-        });
+        const result = await supabaseService.getInquiries();
+        return sendJson(res, 200, result);
       } catch (err) {
         return sendJson(res, 500, { success: false, message: err.message });
       }
@@ -297,11 +156,6 @@ function createServer() {
         const name = (body.name || '').trim();
         const email = (body.email || '').trim();
         const phone = (body.phone || '').trim();
-        const preferredCallTime = body.preferred_call_time || body.preferredCallTime || 'Anytime';
-        const touchpointChannel = body.touchpoint_channel || body.touchpointChannel || 'Phone Call';
-        const service = body.interest || body.program || body.service || 'General Enquiry';
-        const message = body.message || '';
-        const formType = body.formType || 'Homepage Quick Enquiry';
 
         if (!name || !email || !phone) {
           return sendJson(res, 400, {
@@ -310,30 +164,64 @@ function createServer() {
           });
         }
 
-        const db = readDb();
-        db.inquiries = db.inquiries || [];
+        const result = await supabaseService.recordInquiry(body);
+        return sendJson(res, 201, result);
+      } catch (err) {
+        return sendJson(res, 500, { success: false, message: err.message });
+      }
+    }
 
-        const newInquiry = {
-          id: 'REQ-' + Math.floor(100000 + Math.random() * 900000),
-          timestamp: new Date().toISOString(),
-          name,
-          email,
-          phone,
-          service,
-          preferredCallTime,
-          touchpointChannel,
-          message,
-          formType
+    // 5. ADMIN INQUIRY STATUS: POST / PUT / PATCH /api/admin/inquiry-status
+    if ((req.method === 'POST' || req.method === 'PATCH' || req.method === 'PUT') && pathname === '/api/admin/inquiry-status') {
+      try {
+        const body = await parseJsonBody(req);
+        const id = (body.id || '').trim();
+        const status = (body.status || '').trim();
+        const notes = typeof body.notes === 'string' ? body.notes : undefined;
+
+        if (!id || !status) {
+          return sendJson(res, 400, { success: false, message: 'Inquiry ID and new status are required.' });
+        }
+
+        const validStatuses = ['new', 'in_review', 'contacted', 'converted', 'archived'];
+        const normalizedStatus = status.toLowerCase().replace(/\s+/g, '_');
+        if (!validStatuses.includes(normalizedStatus)) {
+          return sendJson(res, 400, {
+            success: false,
+            message: `Invalid status "${status}". Must be one of: ${validStatuses.join(', ')}`
+          });
+        }
+
+        const result = await supabaseService.updateInquiryStatus(id, normalizedStatus, notes);
+        return sendJson(res, result.success ? 200 : 404, result);
+      } catch (err) {
+        return sendJson(res, 500, { success: false, message: err.message });
+      }
+    }
+
+    // 6. ADMIN STATS: GET /api/admin/stats
+    if (req.method === 'GET' && pathname === '/api/admin/stats') {
+      try {
+        const inquiriesRes = await supabaseService.getInquiries();
+        const usersRes = await supabaseService.getUsers();
+
+        const inquiries = inquiriesRes.inquiries || [];
+        const users = usersRes.users || [];
+
+        const stats = {
+          totalInquiries: inquiries.length,
+          totalUsers: users.length,
+          newInquiries: inquiries.filter(i => ((i.status || '').toLowerCase() === 'new' || !i.status)).length,
+          contactedInquiries: inquiries.filter(i => (i.status || '').toLowerCase() === 'contacted').length,
+          convertedProjects: inquiries.filter(i => (i.status || '').toLowerCase() === 'converted').length,
+          totalStudents: users.filter(u => u.role === 'student' || u.role !== 'admin').length,
+          totalAdmins: users.filter(u => u.role === 'admin').length,
+          engine: supabaseService.isSupabaseConfigured() ? 'Supabase Cloud (PostgreSQL)' : 'Local Embedded Engine',
+          backendMode: supabaseService.isSupabaseConfigured() ? 'Supabase Cloud (PostgreSQL)' : 'Local Embedded Engine',
+          isSupabaseConnected: supabaseService.isSupabaseConfigured()
         };
 
-        db.inquiries.unshift(newInquiry);
-        writeDb(db);
-
-        return sendJson(res, 201, {
-          success: true,
-          message: 'Enquiry recorded successfully!',
-          inquiry: newInquiry
-        });
+        return sendJson(res, 200, { success: true, stats, source: inquiriesRes.source });
       } catch (err) {
         return sendJson(res, 500, { success: false, message: err.message });
       }
@@ -345,6 +233,14 @@ function createServer() {
     let reqPath = decodeURI(pathname);
     if (reqPath === '/' || reqPath === '') {
       reqPath = '/index.html';
+    }
+
+    // Clean URL routing fallback (e.g. /about -> /about.html)
+    if (!path.extname(reqPath)) {
+      const candidateHtml = path.join(PUBLIC_DIR, `${reqPath}.html`);
+      if (fs.existsSync(candidateHtml)) {
+        reqPath = `${reqPath}.html`;
+      }
     }
 
     const filePath = path.join(PUBLIC_DIR, reqPath);
@@ -390,7 +286,7 @@ function findFreePort(port, callback) {
     .listen(port);
 }
 
-// Kill previous server instance if any and start fresh
+// Start server
 findFreePort(DEFAULT_PORT, (err, port) => {
   if (err) {
     console.error('Failed to find an open port:', err);
@@ -400,8 +296,13 @@ findFreePort(DEFAULT_PORT, (err, port) => {
   const server = createServer();
   server.listen(port, () => {
     const url = `http://localhost:${port}`;
+    const mode = supabaseService.isSupabaseConfigured()
+      ? '🟢 Supabase Cloud (PostgreSQL)'
+      : '🟡 Local Embedded Engine (Dual-Mode Ready)';
+
     console.log('\n======================================================');
     console.log(`  🚀 CADC Backend & Web Server is Live!`);
+    console.log(`  🗄️  Backend Mode:       ${mode}`);
     console.log(`  🌐 Website URL:        ${url}`);
     console.log(`  🔐 Login & Sign-up:    ${url}/login.html`);
     console.log(`  📊 Admin Dashboard:    ${url}/dashboard.html`);
