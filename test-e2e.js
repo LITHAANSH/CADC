@@ -84,7 +84,7 @@ async function runE2ETests() {
     assert.strictEqual(data.success, false);
   });
 
-  const testStudentEmail = `student_${Date.now()}@cadc-test.com`;
+  const testStudentEmail = `student_${Date.now()}@cadc.in`;
   await test('Student Sign-Up with Name, Phone, and Educational Background', async () => {
     const payload = {
       name: 'Pooja Kulkarni',

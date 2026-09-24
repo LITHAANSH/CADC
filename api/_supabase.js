@@ -12,8 +12,15 @@ try {
 const { createClient } = require('@supabase/supabase-js');
 const localDb = require('./_db');
 
-const SUPABASE_URL = process.env.SUPABASE_URL || '';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
+let SUPABASE_URL = (process.env.SUPABASE_URL || '').trim();
+if (SUPABASE_URL.endsWith('/rest/v1/')) {
+  SUPABASE_URL = SUPABASE_URL.replace(/\/rest\/v1\/$/, '');
+} else if (SUPABASE_URL.endsWith('/rest/v1')) {
+  SUPABASE_URL = SUPABASE_URL.replace(/\/rest\/v1$/, '');
+}
+SUPABASE_URL = SUPABASE_URL.replace(/\/+$/, '');
+
+const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '').trim();
 
 const isConfigured = Boolean(
   SUPABASE_URL &&
@@ -294,6 +301,20 @@ async function signUpUser({ name, email, phone, education, password }) {
   db.users.push(newUser);
   localDb.saveDb(db);
 
+  if (isSupabaseConfigured()) {
+    try {
+      await supabase.from('profiles').upsert({
+        id: newUser.id,
+        email: normalizedEmail,
+        full_name: name,
+        phone: phone,
+        education_background: education,
+        role: role,
+        created_at: newUser.createdAt
+      });
+    } catch (e) {}
+  }
+
   const { password: _, ...safeUser } = newUser;
   return { success: true, user: safeUser, source: 'local' };
 }
@@ -381,6 +402,17 @@ async function signInUser(email, password) {
 }
 
 async function getUsers() {
+  const db = localDb.readDb();
+  const localUsers = (db.users || []).map(({ password, ...rest }) => ({
+    id: rest.id,
+    name: rest.name || rest.full_name,
+    email: rest.email,
+    phone: rest.phone,
+    education: rest.education || rest.education_background,
+    role: rest.role,
+    createdAt: rest.createdAt || rest.created_at
+  }));
+
   if (isSupabaseConfigured()) {
     try {
       const { data, error } = await supabase
@@ -389,15 +421,34 @@ async function getUsers() {
         .order('created_at', { ascending: false });
 
       if (!error && Array.isArray(data)) {
-        const users = data.map(p => ({
+        let users = data.map(p => ({
           id: p.id,
-          name: p.full_name,
+          name: p.full_name || p.name,
           email: p.email,
           phone: p.phone,
-          education: p.education_background,
+          education: p.education_background || p.education,
           role: p.role,
-          createdAt: p.created_at
+          createdAt: p.created_at || p.createdAt
         }));
+
+        // Merge any local users not yet in profiles
+        for (const lu of localUsers) {
+          if (!users.some(u => u.email.toLowerCase() === lu.email.toLowerCase())) {
+            users.push(lu);
+          }
+        }
+
+        if (!users.some(u => u.email.toLowerCase() === 'lithaansh06@gmail.com')) {
+          users.unshift({
+            id: 'USR-ADMIN-01',
+            name: 'Lithaansh (Admin)',
+            email: 'lithaansh06@gmail.com',
+            phone: '+91 7483271232',
+            education: 'Aerospace & Automotive Engineering Leadership',
+            role: 'admin',
+            createdAt: '2026-01-01T00:00:00.000Z'
+          });
+        }
         return { success: true, count: users.length, users, source: 'supabase' };
       }
     } catch (err) {
@@ -405,8 +456,19 @@ async function getUsers() {
     }
   }
 
-  const db = localDb.readDb();
-  const safeUsers = (db.users || []).map(({ password, ...rest }) => rest);
+  const safeUsers = [...localUsers];
+  if (!safeUsers.some(u => u.email.toLowerCase() === 'lithaansh06@gmail.com')) {
+    safeUsers.unshift({
+      id: 'USR-ADMIN-01',
+      name: 'Lithaansh (Admin)',
+      email: 'lithaansh06@gmail.com',
+      phone: '+91 7483271232',
+      education: 'Aerospace & Automotive Engineering Leadership',
+      role: 'admin',
+      createdAt: '2026-01-01T00:00:00.000Z'
+    });
+  }
+
   return {
     success: true,
     count: safeUsers.length,
